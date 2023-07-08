@@ -1,4 +1,16 @@
 import "./App.css";
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Button,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 const DUMMY_DATA = {
   "-NZkqrFwF2Fxa7Gn10GB": { count: "725", name: "Google" },
@@ -21,7 +33,50 @@ console.log(transformedArray);
 function App() {
   return (
     <>
-      <p>test</p>
+      <Stack spacing={4}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Customer Acquisition Channel CRUD
+        </Typography>
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{ justifyContent: "space-between" }}
+        >
+          <Typography variant="h4" component="h2">
+            Users
+          </Typography>
+          <Button variant="contained" color="success">
+            Add new
+          </Button>
+        </Stack>
+        <TableContainer sx={{ maxHeight: "405px" }} component={Paper}>
+          <Table stickyHeader aria-label="channels table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Channel</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {transformedArray.map((row) => (
+                <TableRow key={row.key}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.count}</TableCell>
+                  <TableCell sx={{ width: "0" }}>
+                    <Stack spacing={1} direction="row">
+                      <Button variant="contained">Edit</Button>
+                      <Button variant="contained" color="error">
+                        Detete
+                      </Button>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Stack>
     </>
   );
 }
