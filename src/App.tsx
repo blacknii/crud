@@ -71,9 +71,9 @@ function App() {
       <Stack
         spacing={4}
         direction="row"
-        style={{ flexWrap: "wrap", justifyContent: "center" }}
+        sx={{ flexWrap: "wrap", justifyContent: "center" }}
       >
-        <Stack spacing={1} style={{ width: "600px" }}>
+        <Stack spacing={1} sx={{ width: "600px" }}>
           <Stack
             spacing={2}
             direction="row"
@@ -104,7 +104,7 @@ function App() {
                       <Stack spacing={1} direction="row">
                         <Button variant="contained">Edit</Button>
                         <Button variant="contained" color="error">
-                          Detete
+                          Delete
                         </Button>
                       </Stack>
                     </TableCell>
@@ -114,9 +114,7 @@ function App() {
             </Table>
           </TableContainer>
         </Stack>
-        <Stack
-          style={{ width: "400px", alignItems: "center", padding: "20px" }}
-        >
+        <Stack sx={{ width: "400px", alignItems: "center", padding: "20px" }}>
           {true && <Pie data={userData} />}
         </Stack>
       </Stack>
