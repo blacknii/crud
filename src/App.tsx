@@ -10,6 +10,12 @@ import {
   Button,
   Stack,
   Typography,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { useState } from "react";
 
@@ -63,62 +69,192 @@ function App() {
     ],
   });
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addNewModalOpen, setAddNewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const handleClickDeleteModalOpen = () => {
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeleteModalOpen(false);
+  };
+
+  const handleClickAddNewModalOpen = () => {
+    setAddNewModalOpen(true);
+  };
+
+  const handleAddNewModalClose = () => {
+    setAddNewModalOpen(false);
+  };
+
+  const handleClickEditModalOpen = () => {
+    setEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false);
+  };
+
   return (
-    <Stack spacing={4}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Customer Acquisition Channel CRUD
-      </Typography>
-      <Stack
-        spacing={4}
-        direction="row"
-        sx={{ flexWrap: "wrap", justifyContent: "center" }}
-      >
-        <Stack spacing={1} sx={{ width: "600px" }}>
-          <Stack
-            spacing={2}
-            direction="row"
-            sx={{ justifyContent: "space-between" }}
+    <>
+      <Dialog open={deleteModalOpen} onClose={handleDeleteModalClose}>
+        <DialogTitle>Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this element?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteModalClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteModalClose}
+            variant="contained"
+            color="error"
           >
-            <Typography variant="h4" component="h2">
-              Table
-            </Typography>
-            <Button variant="contained" color="success">
-              Add new
-            </Button>
-          </Stack>
-          <TableContainer sx={{ maxHeight: "405px" }} component={Paper}>
-            <Table stickyHeader aria-label="channels table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Channel</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {transformedArray.map((row) => (
-                  <TableRow key={row.key}>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.count}</TableCell>
-                    <TableCell align="center" sx={{ width: "0" }}>
-                      <Stack spacing={1} direction="row">
-                        <Button variant="contained">Edit</Button>
-                        <Button variant="contained" color="error">
-                          Delete
-                        </Button>
-                      </Stack>
-                    </TableCell>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={addNewModalOpen} onClose={handleAddNewModalClose}>
+        <DialogTitle>Add New</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Name"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Amount"
+            type="number"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleAddNewModalClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddNewModalClose}
+            variant="contained"
+            color="success"
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={editModalOpen} onClose={handleEditModalClose}>
+        <DialogTitle>Edit</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Name"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Amount"
+            type="number"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditModalClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleEditModalClose} variant="contained">
+            Edit
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Stack spacing={4}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Customer Acquisition Channel CRUD
+        </Typography>
+        <Stack
+          spacing={4}
+          direction="row"
+          sx={{ flexWrap: "wrap", justifyContent: "center" }}
+        >
+          <Stack spacing={1} sx={{ width: "600px" }}>
+            <Stack
+              spacing={2}
+              direction="row"
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="h4" component="h2">
+                Table
+              </Typography>
+              <Button
+                onClick={handleClickAddNewModalOpen}
+                variant="contained"
+                color="success"
+              >
+                Add new
+              </Button>
+            </Stack>
+            <TableContainer sx={{ maxHeight: "405px" }} component={Paper}>
+              <Table stickyHeader aria-label="channels table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Channel</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell align="center">Actions</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Stack>
-        <Stack sx={{ width: "400px", alignItems: "center", padding: "20px" }}>
-          {true && <Pie data={userData} />}
+                </TableHead>
+                <TableBody>
+                  {transformedArray.map((row) => (
+                    <TableRow key={row.key}>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.count}</TableCell>
+                      <TableCell align="center" sx={{ width: "0" }}>
+                        <Stack spacing={1} direction="row">
+                          <Button
+                            onClick={handleClickEditModalOpen}
+                            variant="contained"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={handleClickDeleteModalOpen}
+                            variant="contained"
+                            color="error"
+                          >
+                            Delete
+                          </Button>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Stack>
+          <Stack sx={{ width: "400px", alignItems: "center", padding: "20px" }}>
+            {true && <Pie data={userData} />}
+          </Stack>
         </Stack>
       </Stack>
-    </Stack>
+    </>
   );
 }
 
