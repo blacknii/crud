@@ -1,3 +1,4 @@
+import { ChangeEvent, useState } from "react";
 import "./App.css";
 import {
   TableContainer,
@@ -17,11 +18,10 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { useState } from "react";
-
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 import { ArcElement } from "chart.js";
+
 ChartJS.register(ArcElement);
 
 const DUMMY_DATA = {
@@ -75,12 +75,29 @@ function App() {
   const [inputAmount, setInputAmount] = useState("");
   const [elementId, setElementId] = useState("");
 
-  const handleClickDeleteModalOpen = () => {
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputName(e.target.value);
+  };
+
+  const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputAmount(e.target.value);
+  };
+
+  const handleEditClick = (id: string, name: string, amount: string) => {
+    setElementId(id);
+    setInputName(name);
+    setInputAmount(amount);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setElementId(id);
     setDeleteModalOpen(true);
   };
 
   const handleDeleteModalClose = () => {
     setDeleteModalOpen(false);
+    setElementId("");
   };
 
   const handleClickAddNewModalOpen = () => {
@@ -89,6 +106,8 @@ function App() {
 
   const handleAddNewModalClose = () => {
     setAddNewModalOpen(false);
+    setInputName("");
+    setInputAmount("");
   };
 
   const handleClickEditModalOpen = () => {
@@ -97,6 +116,9 @@ function App() {
 
   const handleEditModalClose = () => {
     setEditModalOpen(false);
+    setInputName("");
+    setInputAmount("");
+    setElementId("");
   };
 
   return (
@@ -132,15 +154,19 @@ function App() {
             type="text"
             fullWidth
             variant="standard"
+            value={inputName}
+            onChange={handleNameChange}
           />
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="amount"
             label="Amount"
             type="number"
             fullWidth
             variant="standard"
+            value={inputAmount}
+            onChange={handleAmountChange}
           />
         </DialogContent>
 
@@ -168,15 +194,19 @@ function App() {
             type="text"
             fullWidth
             variant="standard"
+            value={inputName}
+            onChange={handleNameChange}
           />
           <TextField
             autoFocus
             margin="dense"
-            id="name"
+            id="amount"
             label="Amount"
             type="number"
             fullWidth
             variant="standard"
+            value={inputAmount}
+            onChange={handleAmountChange}
           />
         </DialogContent>
         <DialogActions>
@@ -231,13 +261,15 @@ function App() {
                       <TableCell align="center" sx={{ width: "0" }}>
                         <Stack spacing={1} direction="row">
                           <Button
-                            onClick={handleClickEditModalOpen}
+                            onClick={() =>
+                              handleEditClick(row.key, row.name, row.count)
+                            }
                             variant="contained"
                           >
                             Edit
                           </Button>
                           <Button
-                            onClick={handleClickDeleteModalOpen}
+                            onClick={() => handleDeleteClick(row.key)}
                             variant="contained"
                             color="error"
                           >
