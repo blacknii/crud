@@ -43,8 +43,6 @@ const transformedArray = Object.entries(DUMMY_DATA).map(([key, value]) => {
   };
 });
 
-console.log(transformedArray);
-
 function App() {
   const [userData, setUserData] = useState({
     labels: transformedArray.map((e) => e.name),
@@ -72,6 +70,10 @@ function App() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const [inputName, setInputName] = useState("");
+  const [inputAmount, setInputAmount] = useState("");
+  const [elementId, setElementId] = useState("");
 
   const handleClickDeleteModalOpen = () => {
     setDeleteModalOpen(true);
