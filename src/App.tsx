@@ -1,79 +1,29 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Stack, Typography } from "@mui/material";
+import axios from "axios";
 import "./App.css";
-import {
-  TableContainer,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Paper,
-  Button,
-  Stack,
-  Typography,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js/auto";
-import { ArcElement } from "chart.js";
+import PieChart from "./components/PieChart";
+import ChannelsTable from "./components/ChannelsTable";
+import DeleteModal from "./components/modals/DeleteModal";
+import EditModalOpen from "./components/modals/EditModalOpen";
+import AddNewModal from "./components/modals/AddNewModal";
 
-ChartJS.register(ArcElement);
-
-const DUMMY_DATA = {
-  "-NZkqrFwF2Fxa7Gn10GB": { count: "725", name: "Google" },
-  "-NZkr28GUL5lpft2uOcX": { count: "225", name: "Facebook" },
-  "-NZkr54Oo6LvOMlviL5H": { count: "15", name: "Instagram" },
-  "-NZkumvK0uwreJhCGGTB": { count: "30", name: "Twitter" },
-  "-NZkurMjazqOcTZVEGqz": { count: "45", name: "LinkedIn" },
-  "-NZkr54Oo6LvOMaaslviL5H": { count: "15", name: "Instagram" },
-  "-NZkumvK0uwraseJhCGGTB": { count: "30", name: "Twitter" },
-  "-NZkurMjazqasOcTZVEGqz": { count: "45", name: "LinkedIn" },
-};
-
-const transformedArray = Object.entries(DUMMY_DATA).map(([key, value]) => {
-  return {
-    key,
-    count: value.count,
-    name: value.name,
-  };
-});
+interface Channel {
+  key: string;
+  count: string;
+  name: string;
+}
 
 function App() {
-  const [userData, setUserData] = useState({
-    labels: transformedArray.map((e) => e.name),
-    datasets: [
-      {
-        label: "Users Gained",
-        data: transformedArray.map((e) => e.count),
-        backgroundColor: [
-          "#6096B4",
-          "#93BFCF",
-          "#F4B183",
-          "#8294C4",
-          "#ACB1D6",
-          "#FFD966",
-          "#BDCDD6",
-          "#EEE9DA",
-          "#DFA67B",
-        ],
-        borderColor: "black",
-        borderWidth: 2,
-      },
-    ],
-  });
+  const [data, setData] = useState<Channel[]>([]);
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [addNewModalOpen, setAddNewModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [addNewModalOpen, setAddNewModalOpen] = useState<boolean>(false);
+  const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
-  const [inputName, setInputName] = useState("");
-  const [inputAmount, setInputAmount] = useState("");
-  const [elementId, setElementId] = useState("");
+  const [inputName, setInputName] = useState<string>("");
+  const [inputAmount, setInputAmount] = useState<string>("");
+  const [elementId, setElementId] = useState<string>("");
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputName(e.target.value);
@@ -83,22 +33,49 @@ function App() {
     setInputAmount(e.target.value);
   };
 
-  const handleEditClick = (id: string, name: string, amount: string) => {
-    setElementId(id);
-    setInputName(name);
-    setInputAmount(amount);
-    setEditModalOpen(true);
-  };
+  async function fetchData() {
+    try {
+      const response = await axios.get<Record<string, Channel>>(
+        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/get.php"
+      );
 
-  const handleDeleteClick = (id: string) => {
-    setElementId(id);
-    setDeleteModalOpen(true);
-  };
+      const transformedData = Object.entries(response.data).map(
+        ([key, value]) => {
+          return {
+            key,
+            count: value.count,
+            name: value.name,
+          };
+        }
+      );
 
-  const handleDeleteModalClose = () => {
-    setDeleteModalOpen(false);
-    setElementId("");
-  };
+      setData([...transformedData]);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    void fetchData();
+  }, []);
+
+  async function addData() {
+    try {
+      const response = await axios.post(
+        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/add.php",
+        {
+          name: inputName,
+          count: inputAmount,
+        },
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      void fetchData();
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const handleClickAddNewModalOpen = () => {
     setAddNewModalOpen(true);
@@ -110,7 +87,55 @@ function App() {
     setInputAmount("");
   };
 
-  const handleClickEditModalOpen = () => {
+  const removeData = async (): Promise<void> => {
+    try {
+      const response = await axios.get(
+        `http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/delete.php?id=${elementId}`
+      );
+
+      void fetchData();
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleClickDeleteModalOpen = (id: string) => {
+    setElementId(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeleteModalOpen(false);
+    setElementId("");
+  };
+
+  async function editData() {
+    try {
+      const response = await axios.post(
+        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/edit.php",
+        {
+          id: elementId,
+          name: inputName,
+          count: inputAmount,
+        }
+      );
+
+      console.log(response.data);
+      void fetchData();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleClickEditModalOpen = (
+    id: string,
+    name: string,
+    amount: string
+  ) => {
+    setElementId(id);
+    setInputName(name);
+    setInputAmount(amount);
     setEditModalOpen(true);
   };
 
@@ -123,101 +148,29 @@ function App() {
 
   return (
     <>
-      <Dialog open={deleteModalOpen} onClose={handleDeleteModalClose}>
-        <DialogTitle>Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this element?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteModalClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteModalClose}
-            variant="contained"
-            color="error"
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={addNewModalOpen} onClose={handleAddNewModalClose}>
-        <DialogTitle>Add New</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={inputName}
-            onChange={handleNameChange}
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="amount"
-            label="Amount"
-            type="number"
-            fullWidth
-            variant="standard"
-            value={inputAmount}
-            onChange={handleAmountChange}
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleAddNewModalClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAddNewModalClose}
-            variant="contained"
-            color="success"
-          >
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={editModalOpen} onClose={handleEditModalClose}>
-        <DialogTitle>Edit</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={inputName}
-            onChange={handleNameChange}
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="amount"
-            label="Amount"
-            type="number"
-            fullWidth
-            variant="standard"
-            value={inputAmount}
-            onChange={handleAmountChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditModalClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleEditModalClose} variant="contained">
-            Edit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteModal
+        deleteModalOpen={deleteModalOpen}
+        handleDeleteModalClose={handleDeleteModalClose}
+        removeData={removeData}
+      />
+      <AddNewModal
+        addNewModalOpen={addNewModalOpen}
+        handleAddNewModalClose={handleAddNewModalClose}
+        inputName={inputName}
+        handleNameChange={handleNameChange}
+        inputAmount={inputAmount}
+        handleAmountChange={handleAmountChange}
+        addData={addData}
+      />
+      <EditModalOpen
+        editModalOpen={editModalOpen}
+        handleEditModalClose={handleEditModalClose}
+        inputName={inputName}
+        handleNameChange={handleNameChange}
+        inputAmount={inputAmount}
+        handleAmountChange={handleAmountChange}
+        editData={editData}
+      />
       <Stack spacing={4}>
         <Typography variant="h3" component="h1" gutterBottom>
           Customer Acquisition Channel CRUD
@@ -227,65 +180,13 @@ function App() {
           direction="row"
           sx={{ flexWrap: "wrap", justifyContent: "center" }}
         >
-          <Stack spacing={1} sx={{ width: "600px" }}>
-            <Stack
-              spacing={2}
-              direction="row"
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="h4" component="h2">
-                Table
-              </Typography>
-              <Button
-                onClick={handleClickAddNewModalOpen}
-                variant="contained"
-                color="success"
-              >
-                Add new
-              </Button>
-            </Stack>
-            <TableContainer sx={{ maxHeight: "405px" }} component={Paper}>
-              <Table stickyHeader aria-label="channels table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Channel</TableCell>
-                    <TableCell>Amount</TableCell>
-                    <TableCell align="center">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {transformedArray.map((row) => (
-                    <TableRow key={row.key}>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.count}</TableCell>
-                      <TableCell align="center" sx={{ width: "0" }}>
-                        <Stack spacing={1} direction="row">
-                          <Button
-                            onClick={() =>
-                              handleEditClick(row.key, row.name, row.count)
-                            }
-                            variant="contained"
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteClick(row.key)}
-                            variant="contained"
-                            color="error"
-                          >
-                            Delete
-                          </Button>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Stack>
-          <Stack sx={{ width: "400px", alignItems: "center", padding: "20px" }}>
-            {true && <Pie data={userData} />}
-          </Stack>
+          <ChannelsTable
+            data={data}
+            handleClickAddNewModalOpen={handleClickAddNewModalOpen}
+            handleClickEditModalOpen={handleClickEditModalOpen}
+            handleClickDeleteModalOpen={handleClickDeleteModalOpen}
+          />
+          <PieChart data={data} />
         </Stack>
       </Stack>
     </>
