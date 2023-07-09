@@ -14,6 +14,8 @@ interface Channel {
   name: string;
 }
 
+const databaseUrl = "http://localhost/crud-backend/";
+
 function App() {
   const [data, setData] = useState<Channel[]>([]);
 
@@ -36,7 +38,7 @@ function App() {
   async function fetchData() {
     try {
       const response = await axios.get<Record<string, Channel>>(
-        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/get.php"
+        databaseUrl + "get.php"
       );
 
       const transformedData = Object.entries(response.data).map(
@@ -62,7 +64,7 @@ function App() {
   async function addData() {
     try {
       const response = await axios.post(
-        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/add.php",
+        databaseUrl + "add.php",
         {
           name: inputName,
           count: inputAmount,
@@ -90,7 +92,7 @@ function App() {
   const removeData = async (): Promise<void> => {
     try {
       const response = await axios.get(
-        `http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/delete.php?id=${elementId}`
+        `${databaseUrl}delete.php?id=${elementId}`
       );
 
       void fetchData();
@@ -112,14 +114,11 @@ function App() {
 
   async function editData() {
     try {
-      const response = await axios.post(
-        "http://localhost/Simple%20CRUD%20Firebase%20Realtime%20DB/edit.php",
-        {
-          id: elementId,
-          name: inputName,
-          count: inputAmount,
-        }
-      );
+      const response = await axios.post(databaseUrl + "edit.php", {
+        id: elementId,
+        name: inputName,
+        count: inputAmount,
+      });
 
       console.log(response.data);
       void fetchData();
