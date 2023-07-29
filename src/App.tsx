@@ -9,12 +9,12 @@ import EditModalOpen from "./components/modals/EditModalOpen";
 import AddNewModal from "./components/modals/AddNewModal";
 
 interface Channel {
-  key: string;
-  count: string;
+  id: string;
+  amount: string;
   name: string;
 }
 
-const databaseUrl = "http://localhost/crud-backend/";
+const databaseUrl = "http://localhost/php-crud-api/channels/";
 
 function App() {
   const [data, setData] = useState<Channel[]>([]);
@@ -37,21 +37,12 @@ function App() {
 
   async function fetchData() {
     try {
-      const response = await axios.get<Record<string, Channel>>(
-        databaseUrl + "get.php"
+      const response = await axios.get<Record<string, Channel[]>>(
+        databaseUrl + "read.php"
       );
+      console.log(response.data.data);
 
-      const transformedData = Object.entries(response.data).map(
-        ([key, value]) => {
-          return {
-            key,
-            count: value.count,
-            name: value.name,
-          };
-        }
-      );
-
-      setData([...transformedData]);
+      setData(response.data.data);
     } catch (error) {
       console.error(error);
     }
@@ -64,10 +55,10 @@ function App() {
   async function addData() {
     try {
       const response = await axios.post(
-        databaseUrl + "add.php",
+        databaseUrl + "create.php",
         {
           name: inputName,
-          count: inputAmount,
+          amount: inputAmount,
         },
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
@@ -91,7 +82,7 @@ function App() {
 
   const removeData = async (): Promise<void> => {
     try {
-      const response = await axios.get(
+      const response = await axios.delete(
         `${databaseUrl}delete.php?id=${elementId}`
       );
 
@@ -114,11 +105,13 @@ function App() {
 
   async function editData() {
     try {
-      const response = await axios.post(databaseUrl + "edit.php", {
-        id: elementId,
-        name: inputName,
-        count: inputAmount,
-      });
+      const response = await axios.put(
+        databaseUrl + "update.php?id=" + elementId,
+        {
+          name: inputName,
+          amount: inputAmount,
+        }
+      );
 
       console.log(response.data);
       void fetchData();

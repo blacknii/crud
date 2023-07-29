@@ -5,7 +5,7 @@ ChartJS.register(ArcElement);
 
 interface DataEntry {
   name: string;
-  count: string;
+  amount: string;
 }
 
 interface PieChartProps {
@@ -18,7 +18,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
     datasets: [
       {
         label: "Users Gained",
-        data: data.map((e) => e.count),
+        data: data.map((e) => e.amount),
         backgroundColor: [
           "#6096B4",
           "#93BFCF",

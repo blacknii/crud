@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 
 interface ChannelsTableProps {
-  data: { key: string; name: string; count: string }[];
+  data: { id: string; name: string; amount: string }[];
   handleClickAddNewModalOpen: () => void;
-  handleClickEditModalOpen: (key: string, name: string, count: string) => void;
-  handleClickDeleteModalOpen: (key: string) => void;
+  handleClickEditModalOpen: (id: string, name: string, amount: string) => void;
+  handleClickDeleteModalOpen: (id: string) => void;
 }
 
 const ChannelsTable: React.FC<ChannelsTableProps> = ({
@@ -54,21 +54,21 @@ const ChannelsTable: React.FC<ChannelsTableProps> = ({
           </TableHead>
           <TableBody>
             {data.map((row) => (
-              <TableRow key={row.key}>
+              <TableRow key={row.id}>
                 <TableCell>{row.name}</TableCell>
-                <TableCell>{row.count}</TableCell>
+                <TableCell>{row.amount}</TableCell>
                 <TableCell align="center" sx={{ width: "0" }}>
                   <Stack spacing={1} direction="row">
                     <Button
                       onClick={() =>
-                        handleClickEditModalOpen(row.key, row.name, row.count)
+                        handleClickEditModalOpen(row.id, row.name, row.amount)
                       }
                       variant="contained"
                     >
                       Edit
                     </Button>
                     <Button
-                      onClick={() => handleClickDeleteModalOpen(row.key)}
+                      onClick={() => handleClickDeleteModalOpen(row.id)}
                       variant="contained"
                       color="error"
                     >
